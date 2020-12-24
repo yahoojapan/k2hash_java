@@ -1,0 +1,42 @@
+name: Periodic build for compatibility problems detection
+on:
+  schedule:
+    - cron:  '0 0 * * 1'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Java JDK
+      uses: actions/setup-java@v1.4.3
+      with:
+        java-version: 1.8
+        java-package: jdk
+        architecture: x64
+        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+
+    - name: Install dependent packages, build package and run tests
+      run: mvn -B clean exec:exec package --file pom.xml
+
+    - name: Deploy the package to github
+      # Run deploy action on release
+      env:
+        GITHUB_ACTOR: ${{ github.actor }}
+        GITHUB_TOKEN: ${{ github.token }}
+      if: github.event_name == 'release'
+      run: mvn -B deploy --file pom.xml
+
+    - name: Upload a jar file to asset
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      if: github.event_name == 'release'
+      run: mvn -B exec:exec --file pom.xml -Pupload
+
+    - name: Deploy the docs to github
+      env:
+        GITPAGES_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKE_FOR_GITPAGES }}
+      if: github.event_name == 'release'
+      run: mvn -B site --file pom.xml -s settings.xml
