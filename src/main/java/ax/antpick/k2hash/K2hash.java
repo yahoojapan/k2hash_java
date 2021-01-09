@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * import com.sun.jna.*;
  * import com.sun.jna.ptr.*;
  * import java.io.IOException;
- * import ax.antpick.K2hash;
+ * import ax.antpick.k2hash.K2hash;
  *
  * public class App {
  *   public static void main(String[] args) {
