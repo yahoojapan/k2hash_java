@@ -24,12 +24,27 @@
         </repository>
       </repositories>
     </profile>
+    <profile>
+      <id>ossrh</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <gpg.executable>gpg2</gpg.executable>
+        <gpg.passphrase>${env.GNUPG_TOKEN}</gpg.passphrase>
+      </properties>
+    </profile>
   </profiles>
 
   <servers>
     <server>
       <id>github</id>
       <password>${env.GITPAGES_TOKEN}</password>
+    </server>
+    <server>
+      <id>ossrh</id>
+      <username>Wakabayashi</username>
+      <password>${env.SONATYPE_TOKEN}</password>
     </server>
   </servers>
 </settings>
