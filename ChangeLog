@@ -1,3 +1,9 @@
+k2hash-java (1.0.2) stable; urgency=low
+
+  * Changes the default JDK from JDK8 to JDK11
+
+ -- Hirotaka Wakabayashi <hiwakaba@yahoo-corp.jp>  Mon, 04 Oct 2021 15:10:36 +0900
+
 k2hash-java (1.0.1) stable; urgency=low
 
   * Updates control files.
