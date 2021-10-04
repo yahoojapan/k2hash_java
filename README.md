@@ -27,7 +27,7 @@ $ mvn clean exec:exec package
 
 #### JDK
 
-You can try a new JDK by changing the JAVA_HOME environment and run `mvn clean exec:exec package'.
+You can try a new JDK by changing the JAVA_HOME environment and run `mvn clean exec:exec package`.
 ```
 $ export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-11.0.12.0.7-0.el7_9.x86_64
 $ mvn clean exec:exec package
