@@ -5,7 +5,7 @@
   <artifactId>k2hash</artifactId>
   <packaging>jar</packaging>
 
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <name>k2hash</name>
   <description>An official java driver for k2hash, which is a highly available and scalable distributed KVS library.</description>
   <url>https://github.com/yahoojapan/k2hash_java</url>
@@ -47,33 +47,6 @@
      </repository>
   </distributionManagement>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <!-- GitHub Maven Plugins -->
-    <github.global.server>github</github.global.server>
-    <!-- dependency versions -->
-    <jna.version>5.5.0</jna.version>
-    <jna-platform.version>5.5.0</jna-platform.version>
-    <logback-core.version>1.2.3</logback-core.version>
-    <logback-classic.version>1.2.3</logback-classic.version>
-    <junit.version>4.13.1</junit.version>
-    <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-    <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
-    <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
-    <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-    <maven-assembly-plugin.version>3.2.0</maven-assembly-plugin.version>
-    <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
-    <maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
-    <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
-    <clover-maven-plugin.version>>4.4.1</clover-maven-plugin.version>
-    <site-maven-plugin.version>0.12</site-maven-plugin.version>
-    <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
-    <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-    <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-  </properties>
-
   <reporting>
     <plugins>
       <plugin>
@@ -88,6 +61,30 @@
       </plugin>
     </plugins>
   </reporting>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <github.global.server>github</github.global.server>
+    <jna.version>5.9.0</jna.version>
+    <jna-platform.version>5.9.0</jna-platform.version>
+    <logback-core.version>1.3.0-alpha10</logback-core.version>
+    <logback-classic.version>1.3.0-alpha10</logback-classic.version>
+    <junit.version>4.13.2</junit.version>
+    <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+    <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
+    <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+    <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+    <maven-javadoc-plugin.version>3.3.1</maven-javadoc-plugin.version>
+    <maven-project-info-reports-plugin.version>3.1.2</maven-project-info-reports-plugin.version>
+    <maven-site-plugin.version>3.9.0</maven-site-plugin.version>
+    <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+    <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+    <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
+    <clover-maven-plugin.version>>4.4.1</clover-maven-plugin.version>
+    <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
+    <site-maven-plugin.version>0.12</site-maven-plugin.version>
+    <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -116,6 +113,16 @@
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+        <groupId>org.javassist</groupId>
+        <artifactId>javassist</artifactId>
+        <version>3.28.0-GA</version>
+    </dependency>
+    <dependency>
+        <groupId>cglib</groupId>
+        <artifactId>cglib-nodep</artifactId>
+        <version>3.3.0</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -125,14 +132,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven-compiler-plugin.version}</version>
         <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-          <testSource>${maven.compiler.source}</testSource>
-          <testTarget>${maven.compiler.target}</testTarget>
-          <compilerArgument>-Xlint:all</compilerArgument>
-          <failOnWarning>false</failOnWarning>
-          <showDeprecation>true</showDeprecation>
-          <showWarnings>true</showWarnings>
+          <release>11</release>
         </configuration>
       </plugin>
       <plugin>
@@ -207,6 +207,14 @@
             <phase>site</phase>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>${versions-maven-plugin.version}</version>
+          <configuration>
+              <generateBackupPoms>false</generateBackupPoms>
+          </configuration>
       </plugin>
     </plugins>
   </build>
