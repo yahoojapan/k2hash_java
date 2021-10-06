@@ -28,47 +28,34 @@
  */
 package ax.antpick.k2hash;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.NoSuchElementException;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Unit test for simple App. */
 /** @author hiwakaba */
-public class K2hashQueueTest extends TestCase {
+public class K2hashQueueTest {
   private static final Logger logger = LoggerFactory.getLogger(K2hashQueueTest.class);
   private static final String FILEDB = "queue.k2h";
-  /**
-   * Create the test case
-   *
-   * @param testName name of the test case
-   */
-  public K2hashQueueTest(String testName) {
-    super(testName);
-  }
 
-  /** @return the suite of tests being tested */
-  public static Test suite() {
-    return new TestSuite(K2hashQueueTest.class);
-  }
-
-  @Override
-  protected void setUp() {
+  @BeforeEach
+  public void setUp() {
     File fileDb = new File(FILEDB);
     if (fileDb.exists()) {
       fileDb.delete();
     }
   }
 
-  @Override
-  protected void tearDown() {
+  @AfterEach
+  public void tearDown() {
     File fileDb = new File(FILEDB);
     if (fileDb.exists()) {
       fileDb.delete();
@@ -81,8 +68,9 @@ public class K2hashQueueTest extends TestCase {
       long handle = db.getHandle();
       K2hashQueue queue = K2hashQueue.of(handle);
       assertTrue(queue.getQueueHandle() > K2hashQueue.K2H_INVALID_HANDLE);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -93,8 +81,9 @@ public class K2hashQueueTest extends TestCase {
       K2hashQueue queue = K2hashQueue.of(handle, true, "prefix");
       /* do nothing */
       assertTrue(queue.getQueueHandle() > K2hashQueue.K2H_INVALID_HANDLE);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -112,8 +101,9 @@ public class K2hashQueueTest extends TestCase {
       assertTrue(isSuccess);
       isEmpty = queue.isEmpty();
       assertFalse(isEmpty);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -130,8 +120,9 @@ public class K2hashQueueTest extends TestCase {
       assertTrue(isSuccess);
       size = queue.count();
       assertTrue(size == 1);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -152,8 +143,9 @@ public class K2hashQueueTest extends TestCase {
       data = queue.peek();
       assertTrue(data != null);
       assertTrue(data.equals("val"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -168,8 +160,9 @@ public class K2hashQueueTest extends TestCase {
       String data2 = queue.peek(0);
       assertTrue(data2 != null);
       assertTrue(data2.equals("val"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -184,8 +177,9 @@ public class K2hashQueueTest extends TestCase {
       String data2 = queue.peek(0);
       assertTrue(data2 != null);
       assertTrue(data2.equals("val"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -208,8 +202,9 @@ public class K2hashQueueTest extends TestCase {
       // 3. assure it's null
       val = queue.poll();
       assertTrue(val == null);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -236,8 +231,9 @@ public class K2hashQueueTest extends TestCase {
       }
       val = queue.poll();
       assertTrue(val == null);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -253,8 +249,9 @@ public class K2hashQueueTest extends TestCase {
       data2 = queue.poll();
       assertTrue(data2 != null);
       assertTrue(data2.equals("val"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -270,8 +267,9 @@ public class K2hashQueueTest extends TestCase {
       data2 = queue.poll();
       assertTrue(data2 != null);
       assertTrue(data2.equals("val"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -287,8 +285,9 @@ public class K2hashQueueTest extends TestCase {
       String data2 = queue.remove();
       assertTrue(data2 != null);
       assertTrue(data2.equals("val"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -298,11 +297,13 @@ public class K2hashQueueTest extends TestCase {
       long handle = db.getHandle();
       K2hashQueue queue = K2hashQueue.of(handle, true, "prefix");
       String val = queue.remove();
-      assertTrue("NoSuchElementException should be thrown", false);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+      System.out.println("NoSuchElementException should be thrown");
+      assertFalse(true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     } catch (NoSuchElementException e) {
-      assertTrue(e.getMessage(), true);
+      assertTrue(true);
     }
   }
 
@@ -313,8 +314,9 @@ public class K2hashQueueTest extends TestCase {
       K2hashQueue queue = K2hashQueue.of(handle, true, "prefix");
       queue.print();
       assertTrue(true);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 }
