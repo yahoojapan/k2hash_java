@@ -28,16 +28,21 @@
  */
 package ax.antpick.k2hash;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.junit.*;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,12 +51,7 @@ public class K2hashFileTest {
   private static final Logger logger = LoggerFactory.getLogger(K2hashFileTest.class);
   private static final String FILEDB = "test.k2h";
 
-  /** @return the suite of tests being tested */
-  public static junit.framework.Test suite() {
-    return new junit.framework.JUnit4TestAdapter(K2hashFileTest.class);
-  }
-
-  @Before
+  @BeforeEach
   public void setUp() {
     File fileDb = new File(FILEDB);
     if (fileDb.exists()) {
@@ -59,7 +59,7 @@ public class K2hashFileTest {
     }
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     File fileDb = new File(FILEDB);
     if (fileDb.exists()) {
@@ -72,8 +72,9 @@ public class K2hashFileTest {
   public void testOfArg1() {
     try (K2hash db = K2hash.of(FILEDB)) {
       assertTrue(true);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -82,8 +83,9 @@ public class K2hashFileTest {
   public void testOfArg2() {
     try (K2hash db = K2hash.of(FILEDB, K2hash.OPEN_MODE.RDWR)) {
       assertTrue(true);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -117,8 +119,9 @@ public class K2hashFileTest {
       assertTrue(db.setValue("key", "val"));
       assertTrue(fileDb.length() > 0);
       assertTrue(db.getTxFileFd() != -1);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -135,8 +138,9 @@ public class K2hashFileTest {
       assertTrue(db.setValue("key", "val"));
       assertTrue(fileDb.length() > 0);
       assertTrue(db.getTxFileFd() != -1);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -152,8 +156,9 @@ public class K2hashFileTest {
       assertTrue(db.stopTx());
       assertTrue(db.setValue("key", "val"));
       assertTrue(fileDb.length() == 0);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -162,8 +167,9 @@ public class K2hashFileTest {
   public void testGetTxPoolSize() {
     try (K2hash db = K2hash.of(FILEDB)) {
       assertEquals(0, db.getTxPoolSize());
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -173,8 +179,9 @@ public class K2hashFileTest {
     try (K2hash db = K2hash.of(FILEDB)) {
       assertTrue(db.setTxPoolSize(1));
       assertEquals(1, db.getTxPoolSize());
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -189,8 +196,9 @@ public class K2hashFileTest {
       assertTrue(db.setValue("key", "val"));
       assertTrue(db.dumpToFile("/tmp/testDumpToFileArg1.log"));
       assertTrue(fileDb.length() != 0);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -205,8 +213,9 @@ public class K2hashFileTest {
       assertTrue(db.setValue("key", "val"));
       assertTrue(db.dumpToFile("/tmp/testDumpToFileArg2.log", false));
       assertTrue(fileDb.length() != 0);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -224,8 +233,9 @@ public class K2hashFileTest {
       assertTrue(db.remove("key"));
       assertTrue(db.loadFromFile("/tmp/testLoadFromFileArg1.log"));
       assertTrue(db.getValue("key") != null);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -243,8 +253,9 @@ public class K2hashFileTest {
       assertTrue(db.remove("key"));
       assertTrue(db.loadFromFile("/tmp/testLoadFromFileArg2.log", false));
       assertTrue(db.getValue("key") != null);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -253,8 +264,9 @@ public class K2hashFileTest {
   public void testEnableMtime() {
     try (K2hash db = K2hash.of(FILEDB)) {
       assertTrue(db.enableMtime(true));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -263,8 +275,9 @@ public class K2hashFileTest {
   public void testEnableEncryptFalse() {
     try (K2hash db = K2hash.of(FILEDB)) {
       assertTrue(db.enableEncryption(false));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), false);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -274,8 +287,9 @@ public class K2hashFileTest {
     try (K2hash db = K2hash.of(FILEDB)) {
       assertTrue(db.setDefaultEncryptionPassword("secretstring"));
       assertTrue(db.enableEncryption(true));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), false);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -288,8 +302,9 @@ public class K2hashFileTest {
         file.createNewFile();
       }
       assertTrue(db.setEncryptionPasswordFile("password.txt"));
-    } catch (IOException ex) {
-      assertTrue(false);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -303,8 +318,9 @@ public class K2hashFileTest {
     try (K2hash db = K2hash.of(FILEDB)) {
       db.setEncryptionPasswordFile("password.txt");
       assertTrue(false);
-    } catch (IOException ex) {
-      assertTrue(true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -313,8 +329,9 @@ public class K2hashFileTest {
   public void testAddDecryptionPassword() {
     try (K2hash db = K2hash.of(FILEDB)) {
       assertTrue(db.addDecryptionPassword("secretstring"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -323,8 +340,9 @@ public class K2hashFileTest {
   public void testEnableHistory() {
     try (K2hash db = K2hash.of(FILEDB)) {
       assertTrue(db.enableHistory(true));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -336,34 +354,38 @@ public class K2hashFileTest {
       assertTrue(db.setValue("key", "val"));
       try {
         Thread.sleep(5000);
-      } catch (InterruptedException ex) {
-        assertFalse(ex.getMessage(), true);
+      } catch (InterruptedException e) {
+        System.out.println("InterruptedException " + e.getMessage());
+        assertFalse(true);
       }
       assertTrue(db.getValue("key") == null);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
   /** K2hash printAttributePlugins */
-  @Ignore
+  @Disabled
   public void testPrintAttributePlugins() {
     try (K2hash db = K2hash.of(FILEDB)) {
       db.printAttributePlugins();
       assertTrue(true);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
   /** K2hash printAttributes */
-  @Ignore
+  @Disabled
   public void testPrintAttributes() {
     try (K2hash db = K2hash.of(FILEDB)) {
       db.printAttributes();
       assertTrue(true);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -375,8 +397,9 @@ public class K2hashFileTest {
       assertTrue(val == null);
       assertTrue(db.setValue("key", "val"));
       assertTrue(db.getValue("key").equals("val"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -388,8 +411,9 @@ public class K2hashFileTest {
       assertTrue(val == null);
       assertTrue(db.setValue("key", "value", "pass", 0, TimeUnit.SECONDS));
       assertTrue(db.getValue("key", "pass").equals("value"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -402,8 +426,9 @@ public class K2hashFileTest {
       List<String> list = db.getSubkeys("key");
       assertTrue(list != null);
       assertTrue(list.get(0).equals("subkey"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -415,8 +440,9 @@ public class K2hashFileTest {
       List<String> list = db.getSubkeys("key");
       assertTrue(list != null);
       assertTrue(list.get(0).equals("subkey"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -431,8 +457,9 @@ public class K2hashFileTest {
       assertTrue(list.size() == 2);
       assertTrue(list.get(0).equals("subkey1"));
       assertTrue(list.get(1).equals("subkey2"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -445,8 +472,9 @@ public class K2hashFileTest {
       assertTrue(list != null);
       assertTrue(list.size() == 1);
       assertTrue(list.get(0).equals("subkey"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -461,8 +489,9 @@ public class K2hashFileTest {
       assertTrue(list.size() == 2);
       assertTrue(list.get(0).equals("subkey1"));
       assertTrue(list.get(1).equals("subkey2"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -478,8 +507,9 @@ public class K2hashFileTest {
       assertTrue(val != null);
       assertTrue(val.containsKey("attrname"));
       assertTrue(val.containsValue("attrval"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -494,8 +524,9 @@ public class K2hashFileTest {
       String attrVal = db.getAttribute("key", "attrname");
       assertTrue(attrVal != null);
       assertTrue(attrVal.equals("attrval"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -505,8 +536,9 @@ public class K2hashFileTest {
     try (K2hash db = K2hash.of(FILEDB)) {
       assertTrue(db.setValue("key", "value"));
       assertTrue(db.getValue("key").equals("value"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -517,12 +549,14 @@ public class K2hashFileTest {
       assertTrue(db.setValue("key", "value", "password", 3, TimeUnit.SECONDS));
       try {
         Thread.sleep(5000);
-      } catch (InterruptedException ex) {
-        assertFalse(ex.getMessage(), true);
+      } catch (InterruptedException e) {
+        System.out.println("InterruptedException " + e.getMessage());
+        assertFalse(true);
       }
       assertTrue(db.getValue("key") == null);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -533,8 +567,9 @@ public class K2hashFileTest {
       assertTrue(db.setValue("key", "value"));
       assertTrue(db.setAttribute("key", "attrname", "attrval"));
       // assertTrue(db.getAttribute("key", "attrname").equals("attrval"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -546,8 +581,9 @@ public class K2hashFileTest {
       assertTrue(db.getValue("key") != null);
       assertTrue(db.remove("key"));
       assertTrue(db.getValue("key") == null);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -572,8 +608,9 @@ public class K2hashFileTest {
       assertTrue(db.getValue("key") != null);
       assertTrue(db.getValue("subkey1") == null);
       assertTrue(db.getValue("subkey2") != null);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -590,8 +627,9 @@ public class K2hashFileTest {
       assertTrue(db.getValue("key") == null);
       assertTrue(db.getValue("subkey1") == null);
       assertTrue(db.getValue("subkey2") == null);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
@@ -604,44 +642,48 @@ public class K2hashFileTest {
       assertTrue(db.getValue("key") == null);
       assertTrue(db.getValue("newkey") != null);
       assertTrue(db.getValue("newkey").equals("val"));
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
   /** K2hash printTableStats */
-  @Ignore
+  @Disabled
   @Test
   public void testPrintTableStatsArg1() {
     try (K2hash db = K2hash.of(FILEDB)) {
       db.printTableStats(K2hash.STATS_DUMP_LEVEL.HEADER);
       assertTrue(true);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
   /** K2hash printDataStats */
-  @Ignore
+  @Disabled
   @Test
   public void testPrintDataStats() {
     try (K2hash db = K2hash.of(FILEDB)) {
       db.printDataStats();
       assertTrue(true);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 
   /** K2hash version */
-  @Ignore
+  @Disabled
   @Test
   public void testVersion() {
     try (K2hash db = K2hash.of(FILEDB)) {
       db.version();
       assertTrue(true);
-    } catch (IOException ex) {
-      assertFalse(ex.getMessage(), true);
+    } catch (IOException e) {
+      System.out.println("IOException " + e.getMessage());
+      assertFalse(true);
     }
   }
 }
