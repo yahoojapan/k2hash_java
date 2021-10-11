@@ -40,11 +40,11 @@
   </scm>
 
   <distributionManagement>
-     <repository>
-       <id>github</id>
-       <name>GitHub yahoojapan Apache Maven Packages</name>
-       <url>https://maven.pkg.github.com/yahoojapan/k2hash_java</url>
-     </repository>
+    <repository>
+      <id>ossrh</id>
+      <name>Central Repository OSSRH</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
   </distributionManagement>
 
   <reporting>
@@ -64,6 +64,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- https://github.github.com/maven-plugins/site-plugin/authentication.html -->
     <github.global.server>github</github.global.server>
     <cglib-nodep.version>3.3.0</cglib-nodep.version>
     <jna.version>5.9.0</jna.version>
@@ -87,7 +88,6 @@
     <clover-maven-plugin.version>>4.4.1</clover-maven-plugin.version>
     <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
     <site-maven-plugin.version>0.12</site-maven-plugin.version>
-    <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
   </properties>
 
   <dependencies>
@@ -312,37 +312,10 @@
         </plugins>
       </build>
     </profile>
-    <!-- sonatype build -->
     <profile>
-      <id>ossrh-sonatype</id>
-      <activation>
-        <property>
-          <name>ossrh</name>
-        </property>
-      </activation>
-      <distributionManagement>
-        <snapshotRepository>
-          <id>ossrh</id>
-          <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-          <id>ossrh</id>
-          <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-      </distributionManagement>
+      <id>release</id>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>${nexus-staging-maven-plugin.version}</version>
-            <extensions>true</extensions>
-            <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
-            </configuration>
-          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
@@ -380,6 +353,13 @@
                 <goals>
                   <goal>sign</goal>
                 </goals>
+                <configuration>
+                  <!-- Prevent `gpg` from using pinentry programs -->
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
               </execution>
             </executions>
           </plugin>
