@@ -7,19 +7,6 @@
     <activeProfile>github</activeProfile>
   </activeProfiles>
 
-  <profiles>
-    <profile>
-      <id>github</id>
-      <repositories>
-        <repository>
-          <id>github</id>
-          <name>GitHub yahoojapan Apache Maven Packages</name>
-          <url>https://maven.pkg.github.com/yahoojapan/k2hash_java</url>
-        </repository>
-      </repositories>
-    </profile>
-  </profiles>
-
   <servers>
     <server>
       <id>github</id>

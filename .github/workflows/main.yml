@@ -38,13 +38,6 @@ jobs:
     - name: Install dependent packages, build package and run tests
       run: mvn -B clean exec:exec package
 
-    - name: Deploy the package to github
-      if: github.event_name == 'release'
-      run: mvn -B deploy -s settings_github.xml
-      env:
-        GITHUB_ACTOR: ${{ github.actor }}
-        GITHUB_TOKEN: ${{ github.token }}
-
     - name: Upload a jar file to asset
       if: github.event_name == 'release'
       run: mvn -B exec:exec -Pupload
