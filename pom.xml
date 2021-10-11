@@ -5,7 +5,7 @@
   <artifactId>k2hash</artifactId>
   <packaging>jar</packaging>
 
-  <version>1.0.3</version>
+  <version>1.0.4</version>
   <name>k2hash</name>
   <description>An official java driver for k2hash, which is a highly available and scalable distributed KVS library.</description>
   <url>https://github.com/yahoojapan/k2hash_java</url>
