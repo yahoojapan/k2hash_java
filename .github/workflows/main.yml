@@ -28,12 +28,12 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
-        server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
-        settings-path: ${{ github.workspace }} # location for the settings.xml file
-        server-username: OSSRH_USERNAME # env variable for username in deploy
-        server-password: OSSRH_PASSWORD # env variable for token in deploy
+        server-id: ossrh
+        settings-path: ${{ github.workspace }}
+        server-username: OSSRH_USERNAME
+        server-password: OSSRH_PASSWORD
         gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Value of the GPG private key to import
-        gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
+        gpg-passphrase: MAVEN_GPG_PASSPHRASE                  # env variable of GPG private key passphrase
 
     - name: Install dependent packages, build package and run tests
       run: mvn -B clean exec:exec package
@@ -57,7 +57,7 @@ jobs:
       env:
         GITPAGES_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKE_FOR_GITPAGES }}
 
-   - name: Publish to Apache Maven Central
+    - name: Publish to Apache Maven Central
       if: github.event_name == 'release'
       run: mvn -B deploy -Prelease -s $GITHUB_WORKSPACE/settings.xml
       env:
