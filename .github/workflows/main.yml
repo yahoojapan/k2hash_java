@@ -1,4 +1,4 @@
-name: CI
+name: K2hash Java CI
 
 on:
   # Trigger the workflow on push or pull request,
@@ -19,41 +19,67 @@ jobs:
   build:
 
     if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]') && ! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
+
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ '8', '11', '17', '21' ]
 
+    name: Java ${{ matrix.java }}
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup Java JDK
-      uses: actions/setup-java@v2
-      with:
-        java-version: '11'
-        distribution: 'adopt'
-        server-id: ossrh
-        settings-path: ${{ github.workspace }}
-        server-username: OSSRH_USERNAME
-        server-password: OSSRH_PASSWORD
-        gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Value of the GPG private key to import
-        gpg-passphrase: MAVEN_GPG_PASSPHRASE                  # env variable of GPG private key passphrase
+      - uses: actions/checkout@v4
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'zulu'
+          server-id: ossrh
+          settings-path: ${{ github.workspace }}
+          server-username: OSSRH_USERNAME
+          server-password: OSSRH_PASSWORD
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Value of the GPG private key to import
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE                  # env variable of GPG private key passphrase
 
-    - name: Install dependent packages, build package and run tests
-      run: mvn -B clean exec:exec package
+      - name: Set environments
+        run: |
+          echo "COMMON_MAVEN_OPTS=-Dmaven.compiler.failOnWarning=true -Dmaven.compiler.showDeprecation=true -Dmaven.compiler.verbose=true -Dmaven.compiler.debuglevel=lines,vars,source" >> "$GITHUB_ENV"
 
-    - name: Upload a jar file to asset
-      if: github.event_name == 'release'
-      run: mvn -B exec:exec -Pupload
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+      - name: Install dependent packages
+        run: |
+          sudo apt-get install -y curl
+          curl -s https://packagecloud.io/install/repositories/antpickax/stable/script.deb.sh | sudo bash
+          sudo apt-get install -y k2hash-dev
 
-    - name: Deploy the docs to github
-      if: github.event_name == 'release'
-      run: mvn -B site -s settings_github.xml
-      env:
-        GITPAGES_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKE_FOR_GITPAGES }}
+      - name: Run checkstyle
+        run: |
+          mvn ${{ env.COMMON_MAVEN_OPTS }} checkstyle:check
 
-    - name: Publish to Apache Maven Central
-      if: github.event_name == 'release'
-      run: mvn -B deploy -Prelease -s $GITHUB_WORKSPACE/settings.xml
-      env:
-        OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-        OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-        MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+      - name: Run package on version 8
+        if: "matrix.java == '8'"
+        run: |
+          mvn ${{ env.COMMON_MAVEN_OPTS }} -Dmaven.compiler.target=8 package
+
+      - name: Run package on version other than 8
+        if: "matrix.java != '8'"
+        run: |
+          mvn ${{ env.COMMON_MAVEN_OPTS }} -Dmaven.compiler.target=${{ matrix.java }} -Dmaven.compiler.source=${{ matrix.java }} -Dmaven.compiler.release=${{ matrix.java }} package
+
+      - name: Run javadoc
+        run: |
+          mvn ${{ env.COMMON_MAVEN_OPTS }} javadoc:javadoc
+
+      - name: Deploy the docs to github
+        if: "github.event_name == 'release'  && matrix.java == '21'"
+        run: |
+          mvn ${{ env.COMMON_MAVEN_OPTS }} site -s settings_github.xml
+        env:
+          GITPAGES_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKE_FOR_GITPAGES }}
+
+      - name: Publish to Apache Maven Central
+        if: "github.event_name == 'release'  && matrix.java == '21'"
+        run: |
+          mvn ${{ env.COMMON_MAVEN_OPTS }} deploy -Prelease -s $GITHUB_WORKSPACE/settings.xml
+        env:
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}

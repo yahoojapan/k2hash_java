@@ -28,14 +28,14 @@
  */
 package ax.antpick.k2hash;
 
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
+import com.sun.jna.Library;
+import com.sun.jna.Pointer;
 
 /**
  * This JNA interface provides functions in the C library.
  *
  * <p><b>Usage Examples.</b> Suppose you want to set the K2HDBGMODE enviroment "INFO" and print it,
- * You could write this as:
+ * you could write this as:
  *
  * <pre>{@code
  * package ax.antpick;
@@ -46,7 +46,8 @@ import com.sun.jna.ptr.*;
  * public class App {
  *   public static void main(String[] args) {
  *     CLibrary INSTANCE =
- *         (CLibrary) Native.synchronizedLibrary(Native.loadLibrary("c", CLibrary.class));
+ *         (CLibrary) Native.synchronizedLibrary(
+ *             Native.load("c", CLibrary.class));
  *     INSTANCE.setenv("K2HDBGMODE", "INFO", 1);
  *     System.out.println(INSTANCE.getenv("K2HDBGMODE"));
  *   }
@@ -55,7 +56,7 @@ import com.sun.jna.ptr.*;
  */
 public interface CLibrary extends Library {
   /**
-   * Frees the memory space pointed to by ptr
+   * Frees the memory space pointed to by ptr.
    *
    * @param ptr a pointer to be free
    */
@@ -63,13 +64,13 @@ public interface CLibrary extends Library {
   void free(Pointer ptr);
 
   /**
-   * Adds an enviroments
+   * Adds an enviroments.
    *
    * @param name an environment string
    * @param value the value
    * @param overwrite if <code>name</code> already exists in the environment, then its <code>value
-   *     </code> is changed to <code>value</code> if <code>overwrite</code> is nonzero. If <code>
-   *     overwrite</code> is zero, then the <code>value</code> of <code>name</code> is not changed.
+   *     </code> is changed to <code>value</code> i <code>overwrite</code> is nonzero. If <code>
+   *      overwrite</code> i zero, then the <code>value</code> of <code>name</code> is not changed.
    * @return returns zero on success, or -1 on error, with errno set to indicate the cause of the
    *     error.
    */
@@ -97,7 +98,11 @@ public interface CLibrary extends Library {
 }
 
 //
-// VIM modelines
-//
-// vim:set ts=4 fenc=utf-8:
+// Local variables:
+// tab-width: 2
+// c-basic-offset: 2
+// indent-tabs-mode: nil
+// End:
+// vim600: noexpandtab sw=2 ts=2 fdm=marker
+// vim<600: noexpandtab sw=2 ts=2
 //

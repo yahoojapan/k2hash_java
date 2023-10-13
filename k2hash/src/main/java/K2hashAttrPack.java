@@ -28,9 +28,7 @@
  */
 package ax.antpick.k2hash;
 
-import com.sun.jna.*;
-import com.sun.jna.Structure.*;
-import com.sun.jna.ptr.*;
+import com.sun.jna.Structure;
 import java.util.List;
 
 //
@@ -122,4 +120,15 @@ public class K2hashAttrPack extends Structure {
   protected List<String> getFieldOrder() {
     return FIELDS;
   }
+    
 }
+
+//
+// Local variables:
+// tab-width: 2
+// c-basic-offset: 2
+// indent-tabs-mode: nil
+// End:
+// vim600: noexpandtab sw=2 ts=2 fdm=marker
+// vim<600: noexpandtab sw=2 ts=2
+//

@@ -28,8 +28,14 @@
  */
 package ax.antpick.k2hash;
 
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
+import com.sun.jna.IntegerType;
+import com.sun.jna.Memory;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.StringArray;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.ptr.PointerByReference;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.*;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +77,7 @@ import org.slf4j.LoggerFactory;
  * }
  * }</pre>
  */
-public class K2hash implements Closeable {
+public final class K2hash implements Closeable {
 
   /* -- private Static members -- */
   /** A logger instance. */
@@ -130,10 +136,7 @@ public class K2hash implements Closeable {
   };
 
   /* -- private instance members -- */
-  /** The file mapped to k2hash data */
-  private final Path path;
-
-  /** K2hash data handle */
+  /** K2hash data handle. */
   private long handle = K2H_INVALID_HANDLE;
 
   /**
@@ -169,7 +172,7 @@ public class K2hash implements Closeable {
    * @exception IllegalArgumentException If {@code val} is null
    * @throws IllegalArgumentException If {@code val} is negative or zero
    */
-  static void isStringNotNull(String val, String varName) {
+  static void isStringNotNull(final String val, final String varName) {
     if (val == null) {
       throw new IllegalArgumentException(varName + "is null");
     }
@@ -183,7 +186,7 @@ public class K2hash implements Closeable {
    * @exception IllegalArgumentException If {@code val} is null
    * @throws IllegalArgumentException If {@code val} is negative or zero
    */
-  static void isStringNotEmpty(String val, String varName) {
+  static void isStringNotEmpty(final String val, final String varName) {
     if (val == null) {
       throw new IllegalArgumentException(varName + "is null");
     }
@@ -202,7 +205,7 @@ public class K2hash implements Closeable {
    * @exception IllegalArgumentException If {@code val} is null
    * @exception IllegalArgumentException If {@code val} is negative or zero
    */
-  static void isStringArrayNotEmpty(String[] array, String varName) {
+  static void isStringArrayNotEmpty(final String[] array, final String varName) {
     if (array == null || array.length == 0) {
       throw new IllegalArgumentException(varName + "is null");
     }
@@ -218,7 +221,7 @@ public class K2hash implements Closeable {
    * @exception IllegalArgumentException If {@code val} is null
    * @exception IllegalArgumentException If {@code val} is negative or zero
    */
-  static void isByteArrayNotEmpty(byte[] array, String varName) {
+  static void isByteArrayNotEmpty(final byte[] array, final String varName) {
     if (array == null || array.length == 0) {
       throw new IllegalArgumentException(varName + "is null");
     }
@@ -231,7 +234,7 @@ public class K2hash implements Closeable {
    * @param varName variable name used for the error message
    * @throws IllegalArgumentException If {@code val} is negative or zero
    */
-  static void isPositive(int val, String varName) {
+  static void isPositive(final int val, final String varName) {
     if (val < 0) {
       throw new IllegalArgumentException(varName + " is less than equal zero");
     }
@@ -244,7 +247,7 @@ public class K2hash implements Closeable {
    * @param varName variable name used for the error message
    * @throws IllegalArgumentException If {@code val} is negative or zero
    */
-  static void isPositive(long val, String varName) {
+  static void isPositive(final long val, final String varName) {
     if (val < 0) {
       throw new IllegalArgumentException(varName + "is less than equal zero");
     }
@@ -260,17 +263,16 @@ public class K2hash implements Closeable {
    * @throws IllegalArgumentException if pathname is null
    * @throws IOException if a k2hash file is unavailable
    */
-  private K2hash(Path pathname, OPEN_MODE mode) throws IOException {
+  private K2hash(final Path pathname, final OPEN_MODE mode) throws IOException {
     if (pathname == null || pathname.toString().isEmpty()) {
       throw new IllegalArgumentException("pathname is null");
     }
     logger.debug("try to open {} with {}", pathname, mode.name());
-    this.path = pathname;
     switch (mode) {
       case DEFAULT:
         this.handle =
             INSTANCE.k2h_open(
-                this.path.toString(),
+                pathname.toString(),
                 DEFAULT_IS_READONLY,
                 DEFAULT_IS_REMOVE_FILE,
                 DEFAULT_IS_FULLMAP,
@@ -282,7 +284,7 @@ public class K2hash implements Closeable {
       case RDWR:
         this.handle =
             INSTANCE.k2h_open_rw(
-                this.path.toString(),
+                pathname.toString(),
                 DEFAULT_IS_FULLMAP,
                 DEFAULT_MASK_BITS,
                 DEFAULT_CMASK_BITS,
@@ -292,7 +294,7 @@ public class K2hash implements Closeable {
       case RDONLY:
         this.handle =
             INSTANCE.k2h_open_ro(
-                this.path.toString(),
+                pathname.toString(),
                 DEFAULT_IS_FULLMAP,
                 DEFAULT_MASK_BITS,
                 DEFAULT_CMASK_BITS,
@@ -302,7 +304,7 @@ public class K2hash implements Closeable {
       case TMPFILE:
         this.handle =
             INSTANCE.k2h_open_rw(
-                this.path.toString(),
+                pathname.toString(),
                 DEFAULT_IS_FULLMAP,
                 DEFAULT_MASK_BITS,
                 DEFAULT_CMASK_BITS,
@@ -314,9 +316,31 @@ public class K2hash implements Closeable {
             INSTANCE.k2h_open_mem(
                 DEFAULT_MASK_BITS, DEFAULT_CMASK_BITS, DEFAULT_MAX_ELEMENT, DEFAULT_PAGE_SIZE);
         break;
+      default:
+        break;
     }
     if (this.handle <= K2H_INVALID_HANDLE) {
       throw new IOException("k2hash.open failed");
+    }
+  }
+
+  /**
+   * Creates a K2hash instance using k2h_open_mem.
+   *
+   * @param mode file open mode
+   * @throws IllegalArgumentException when mode is invalid
+   * @throws IOException if a k2hash file is unavailable
+   */
+  private K2hash(final K2hash.OPEN_MODE mode) throws IOException {
+    if (mode == K2hash.OPEN_MODE.MEM) {
+      this.handle =
+          INSTANCE.k2h_open_mem(
+              DEFAULT_MASK_BITS, DEFAULT_CMASK_BITS, DEFAULT_MAX_ELEMENT, DEFAULT_PAGE_SIZE);
+      if (this.handle <= K2H_INVALID_HANDLE) {
+        throw new IOException("k2hash.open failed");
+      }
+    } else {
+      throw new IllegalArgumentException("only MEM mode is currently supported");
     }
   }
 
@@ -330,8 +354,7 @@ public class K2hash implements Closeable {
   public static synchronized K2hashLibrary getLibrary() throws IOException {
     if (INSTANCE == null) {
       INSTANCE =
-          (K2hashLibrary)
-              Native.synchronizedLibrary(Native.loadLibrary("k2hash", K2hashLibrary.class));
+          (K2hashLibrary) Native.synchronizedLibrary(Native.load("k2hash", K2hashLibrary.class));
     }
     if (INSTANCE == null) {
       throw new IOException("loading shared library error");
@@ -347,7 +370,7 @@ public class K2hash implements Closeable {
    */
   public static synchronized CLibrary getCLibrary() throws IOException {
     if (C_INSTANCE == null) {
-      C_INSTANCE = (CLibrary) Native.synchronizedLibrary(Native.loadLibrary("c", CLibrary.class));
+      C_INSTANCE = (CLibrary) Native.synchronizedLibrary(Native.load("c", CLibrary.class));
     }
     if (C_INSTANCE == null) {
       throw new IOException("loading shared library error");
@@ -363,17 +386,31 @@ public class K2hash implements Closeable {
    * @throws IllegalArgumentException if pathname is null
    * @throws IOException if creating a k2hash file failed
    */
-  public static synchronized K2hash of(String pathname) throws IOException {
+  public static synchronized K2hash of(final String pathname) throws IOException {
     if (pathname == null) {
       throw new IllegalArgumentException();
     }
     Path path = fs.getPath(pathname).toAbsolutePath();
     if (INSTANCE == null) {
       INSTANCE =
-          (K2hashLibrary)
-              Native.synchronizedLibrary(Native.loadLibrary("k2hash", K2hashLibrary.class));
+          (K2hashLibrary) Native.synchronizedLibrary(Native.load("k2hash", K2hashLibrary.class));
     }
     return new K2hash(path, K2hash.OPEN_MODE.DEFAULT);
+  }
+
+  /**
+   * Creates a k2hash instance.
+   *
+   * @param mode an access mode to open a file
+   * @return a K2hash instance
+   * @throws IOException if creating a k2hash file failed
+   */
+  public static synchronized K2hash of(final K2hash.OPEN_MODE mode) throws IOException {
+    if (INSTANCE == null) {
+      INSTANCE =
+          (K2hashLibrary) Native.synchronizedLibrary(Native.load("k2hash", K2hashLibrary.class));
+    }
+    return new K2hash(mode);
   }
 
   /**
@@ -385,15 +422,15 @@ public class K2hash implements Closeable {
    * @throws IllegalArgumentException if pathname is null
    * @throws IOException if creating a k2hash file failed
    */
-  public static synchronized K2hash of(String pathname, K2hash.OPEN_MODE mode) throws IOException {
+  public static synchronized K2hash of(final String pathname, final K2hash.OPEN_MODE mode)
+      throws IOException {
     if (pathname == null) {
       throw new IllegalArgumentException("pathname is null");
     }
     Path path = fs.getPath(pathname).toAbsolutePath();
     if (INSTANCE == null) {
       INSTANCE =
-          (K2hashLibrary)
-              Native.synchronizedLibrary(Native.loadLibrary("k2hash", K2hashLibrary.class));
+          (K2hashLibrary) Native.synchronizedLibrary(Native.load("k2hash", K2hashLibrary.class));
     }
     return new K2hash(path, mode);
   }
@@ -405,7 +442,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if success <code>false</code> otherwise
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public static boolean create(String pathname) {
+  public static boolean create(final String pathname) {
     try {
       isStringNotEmpty(pathname, "pathname");
     } catch (IllegalArgumentException ex) {
@@ -428,7 +465,11 @@ public class K2hash implements Closeable {
    * @throws IllegalArgumentException if an illegal augment exists
    */
   public static boolean create(
-      String pathname, int maskBit, int cmaskBit, int maxElement, int pageSize) {
+      final String pathname,
+      final int maskBit,
+      final int cmaskBit,
+      final int maxElement,
+      final int pageSize) {
     try {
       isStringNotEmpty(pathname, "pathname");
       isPositive(maskBit, "maskBit");
@@ -474,7 +515,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if success <code>false</code> otherwise
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean beginTx(String txFile) {
+  public boolean beginTx(final String txFile) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(txFile, "txFile");
@@ -482,7 +523,19 @@ public class K2hash implements Closeable {
       logger.error(ex.getMessage()); /* we catch the first exception only */
       throw ex;
     }
-    return this.beginTx(txFile, null, null, 0);
+    return this.beginTx(txFile, null, null, 0L);
+  }
+
+  /** The class {@code time_t} encapsulates the C.time_t structure. */
+  public final class time_t extends IntegerType {
+    /**
+     * Constructs a time_t instance.
+     *
+     * @param value an integer(32 bit) value holding the number of seconds 1970-01-01T00:00:00 UTC
+     */
+    public time_t(final long value) {
+      super(Native.LONG_SIZE, value);
+    }
   }
 
   /**
@@ -495,7 +548,8 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if success <code>false</code> otherwise
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean beginTx(String txFile, String prefix, String param, long expirationDuration) {
+  public boolean beginTx(
+      final String txFile, final String prefix, final String param, final long expirationDuration) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(txFile, "txFile");
@@ -504,7 +558,11 @@ public class K2hash implements Closeable {
       logger.error(ex.getMessage()); /* we catch the first exception only */
       throw ex;
     }
-    LongByReference lref = new LongByReference(expirationDuration);
+    time_t timeExpirationDuration = new time_t(expirationDuration);
+    Pointer ptr = new Memory(Long.SIZE);
+    int offset = 0;
+    ptr.setLong(offset, timeExpirationDuration.longValue()); // java.lang.Long.longValue()
+
     boolean isSuccess =
         INSTANCE.k2h_transaction_param_we(
             this.handle,
@@ -514,7 +572,7 @@ public class K2hash implements Closeable {
             (prefix != null) ? prefix.length() : 0,
             param,
             (param != null) ? param.length() : 0,
-            (expirationDuration != 0) ? lref : (LongByReference) null);
+            (expirationDuration != 0) ? ptr : (Pointer) null);
     if (!isSuccess) {
       logger.error("k2h_transaction_param_we returns false");
     }
@@ -563,7 +621,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if success <code>false</code> otherwise
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean setTxPoolSize(int txPoolSize) {
+  public boolean setTxPoolSize(final int txPoolSize) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isPositive(txPoolSize, "txPoolSize");
@@ -585,7 +643,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if success <code>false</code> otherwise
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean dumpToFile(String path) {
+  public boolean dumpToFile(final String path) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(path, "path");
@@ -604,7 +662,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if success <code>false</code> otherwise
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean dumpToFile(String path, boolean isSkipError) {
+  public boolean dumpToFile(final String path, final boolean isSkipError) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(path, "path");
@@ -627,7 +685,7 @@ public class K2hash implements Closeable {
    * @throws IllegalArgumentException if an illegal augment exists
    * @throws IOException if a path doesn't exist
    */
-  public boolean loadFromFile(String path) throws IOException {
+  public boolean loadFromFile(final String path) throws IOException {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(path, "path");
@@ -647,7 +705,7 @@ public class K2hash implements Closeable {
    * @throws IllegalArgumentException if an illegal augment exists
    * @throws IOException if a path doesn't exist
    */
-  public boolean loadFromFile(String path, boolean isSkipError) throws IOException {
+  public boolean loadFromFile(final String path, final boolean isSkipError) throws IOException {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(path, "path");
@@ -676,7 +734,7 @@ public class K2hash implements Closeable {
    *     K2H_ATTR_DEFAULT
    * @return <code>true</code> if success <code>false</code> otherwise
    */
-  public boolean enableMtime(boolean enable) {
+  public boolean enableMtime(final boolean enable) {
     assert (this.handle > K2H_INVALID_HANDLE);
     IntByReference enableMtime = new IntByReference();
     if (enable) {
@@ -699,7 +757,7 @@ public class K2hash implements Closeable {
    *     K2H_ATTR_DEFAULT
    * @return <code>true</code> if success <code>false</code> otherwise
    */
-  public boolean enableEncryption(boolean enable) {
+  public boolean enableEncryption(final boolean enable) {
     assert (this.handle > K2H_INVALID_HANDLE);
     IntByReference enableEncryption = new IntByReference();
     if (enable) {
@@ -724,7 +782,7 @@ public class K2hash implements Closeable {
    * @throws IllegalArgumentException if an illegal augment exists
    * @throws IOException if a path doesn't exist
    */
-  public boolean setEncryptionPasswordFile(String path) throws IOException {
+  public boolean setEncryptionPasswordFile(final String path) throws IOException {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(path, "path");
@@ -752,7 +810,7 @@ public class K2hash implements Closeable {
    *     K2H_ATTR_DEFAULT
    * @return <code>true</code> if success <code>false</code> otherwise
    */
-  public boolean enableHistory(boolean enable) {
+  public boolean enableHistory(final boolean enable) {
     assert (this.handle > K2H_INVALID_HANDLE);
     IntByReference enableHistory = new IntByReference();
     if (enable) {
@@ -776,7 +834,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if success <code>false</code> otherwise
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean setExpirationDuration(int duration, TimeUnit unit) {
+  public boolean setExpirationDuration(final int duration, final TimeUnit unit) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isPositive(duration, "expirationDuration");
@@ -839,7 +897,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if success <code>false</code> otherwise
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean addDecryptionPassword(String password) {
+  public boolean addDecryptionPassword(final String password) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(password, "password");
@@ -861,7 +919,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if success <code>false</code> otherwise
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean setDefaultEncryptionPassword(String password) {
+  public boolean setDefaultEncryptionPassword(final String password) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(password, "password");
@@ -884,7 +942,7 @@ public class K2hash implements Closeable {
    * @throws IllegalArgumentException if an illegal augment exists
    * @throws IOException if a path does't exist
    */
-  public boolean addAttributePluginLib(String path) throws IOException {
+  public boolean addAttributePluginLib(final String path) throws IOException {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(path, "path");
@@ -923,7 +981,7 @@ public class K2hash implements Closeable {
    * @return the value of the key
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public String getValue(String key) {
+  public String getValue(final String key) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(key, "key");
@@ -945,7 +1003,7 @@ public class K2hash implements Closeable {
    * @return value of the key
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public String getValue(String key, String pass) {
+  public String getValue(final String key, final String pass) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(key, "key");
@@ -954,9 +1012,17 @@ public class K2hash implements Closeable {
       throw ex;
     }
     // TODO use k2h_get_value_wp instead of k2h_get_str_direct_value_wp because of performance.
-    String rval = INSTANCE.k2h_get_str_direct_value_wp(this.handle, key, pass);
-    if (rval == null) {
+    Pointer ptr = INSTANCE.k2h_get_str_direct_value_wp(this.handle, key, pass);
+    if (ptr == null) {
       logger.warn("k2h_get_str_direct_value_wp returns null");
+      return null;
+    }
+    String rval = ptr.getString(0);
+    try {
+      getCLibrary().free(ptr);
+    } catch (IOException ex) {
+      logger.error(ex.getMessage()); /* we catch the first exception only */
+      return null;
     }
     return rval;
   }
@@ -974,7 +1040,7 @@ public class K2hash implements Closeable {
    * @return value of the key
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public byte[] getValue(byte[] key, String pass) {
+  public byte[] getValue(final byte[] key, final String pass) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isByteArrayNotEmpty(key, "key");
@@ -1006,7 +1072,7 @@ public class K2hash implements Closeable {
    * @return list of subkeys of the key. null if no subkeys exist.
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public List<String> getSubkeys(String key) {
+  public List<String> getSubkeys(final String key) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(key, "key");
@@ -1015,16 +1081,16 @@ public class K2hash implements Closeable {
       throw ex;
     }
 
-    PointerByReference ppskeypck = INSTANCE.k2h_get_str_direct_subkeys(this.handle, key);
-    if (ppskeypck != null) {
-      Pointer ptr = ppskeypck.getPointer();
+    PointerByReference pskeyarray = INSTANCE.k2h_get_str_direct_subkeys(this.handle, key);
+    if (pskeyarray != null) {
+      Pointer ptr = pskeyarray.getPointer();
       if (ptr != null) {
         String[] array = ptr.getStringArray(0);
         if (array.length > 0) {
           // we need a copy and use it before we free the original value.
           String[] newArray = Arrays.copyOfRange(array, 0, array.length);
           List<String> list = Arrays.asList(newArray);
-          boolean isSuccess = INSTANCE.k2h_free_keyarray(array);
+          boolean isSuccess = INSTANCE.k2h_free_keyarray(pskeyarray);
           if (!isSuccess) {
             logger.error("INSTANCE.free_keyarray error");
           }
@@ -1049,7 +1115,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if succeeded. <code>false</code> otherwise.
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean setSubkey(String key, String subkey) {
+  public boolean setSubkey(final String key, final String subkey) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(key, "key");
@@ -1071,7 +1137,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if succeeded. <code>false</code> otherwise.
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean setSubkeys(String key, String[] subkeys) {
+  public boolean setSubkeys(final String key, final String[] subkeys) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(key, "key");
@@ -1098,7 +1164,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if succeeded. <code>false</code> otherwise.
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean addSubkey(String key, String subkey) {
+  public boolean addSubkey(final String key, final String subkey) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(key, "key");
@@ -1131,12 +1197,12 @@ public class K2hash implements Closeable {
     }
 
     // 1. get current subkeys
-    PointerByReference ppskeypck;
-    ppskeypck = INSTANCE.k2h_get_str_direct_subkeys(this.handle, key);
+    PointerByReference pskeyarray;
+    pskeyarray = INSTANCE.k2h_get_str_direct_subkeys(this.handle, key);
 
     String[] currentKeys = null;
-    if (ppskeypck != null) {
-      Pointer ptr = ppskeypck.getPointer();
+    if (pskeyarray != null) {
+      Pointer ptr = pskeyarray.getPointer();
       if (ptr != null) {
         currentKeys = ptr.getStringArray(0);
         if (currentKeys.length == 0) {
@@ -1157,8 +1223,7 @@ public class K2hash implements Closeable {
     String[] allKeys = new String[currentKeys.length + newKeys.length];
     System.arraycopy(currentKeys, 0, allKeys, 0, currentKeys.length);
     System.arraycopy(newKeys, 0, allKeys, currentKeys.length, newKeys.length);
-    INSTANCE.k2h_free_keyarray(currentKeys);
-    INSTANCE.k2h_free_keyarray(newKeys);
+    INSTANCE.k2h_free_keyarray(pskeyarray);
     return setSubkeys(key, allKeys);
   }
 
@@ -1171,7 +1236,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if succeeded. <code>false</code> otherwise.
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean setAttribute(String key, String attrName, String attrVal) {
+  public boolean setAttribute(final String key, final String attrName, final String attrVal) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(key, "key");
@@ -1195,7 +1260,7 @@ public class K2hash implements Closeable {
    * @return attributes of the key
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public Map<String, String> getAttributes(String key) {
+  public Map<String, String> getAttributes(final String key) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(key, "key");
@@ -1205,22 +1270,25 @@ public class K2hash implements Closeable {
     }
 
     IntByReference iref = new IntByReference();
-    K2hashAttrPack pp = INSTANCE.k2h_get_str_direct_attrs(this.handle, key, iref);
+    K2hashAttrPack pp = INSTANCE.k2h_get_str_direct_attrs(handle, key, iref);
     if (pp == null || iref.getValue() == 0) {
       logger.warn("no attribute exists");
       return null;
+    } else {
+      pp.setAutoRead(false);
+      logger.warn("{} attribute exists", iref.getValue());
     }
+
     K2hashAttrPack[] attrs = (K2hashAttrPack[]) pp.toArray(iref.getValue());
-    // Note: We must copy data because attrs must be free later.
-    K2hashAttrPack[] newAttrs = Arrays.copyOfRange(attrs, 0, attrs.length);
+    logger.debug("iref.getValue() {}", iref.getValue());
 
     Map<String, String> map = new HashMap<>();
-    Stream<K2hashAttrPack> stream = Stream.of(newAttrs);
+    Stream<K2hashAttrPack> stream = Stream.of(attrs);
     stream.forEach(
         attr -> {
           map.put(attr.pkey, attr.pval);
         });
-    INSTANCE.k2h_free_attrpack(attrs, iref.getValue());
+    INSTANCE.k2h_free_attrpack(pp, iref.getValue());
     INSTANCE.k2h_close(handle);
     return map;
   }
@@ -1233,7 +1301,7 @@ public class K2hash implements Closeable {
    * @return the value of the attribute name of the key
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public String getAttribute(String key, String attribute) {
+  public String getAttribute(final String key, final String attribute) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(key, "key");
@@ -1262,7 +1330,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if succeeded. <code>false</code> otherwise.
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean setValue(String key, String val) {
+  public boolean setValue(final String key, final String val) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(key, "key");
@@ -1284,7 +1352,12 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if succeeded. <code>false</code> otherwise.
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean setValue(String key, String val, String password, long duration, TimeUnit unit) {
+  public boolean setValue(
+      final String key,
+      final String val,
+      final String password,
+      final long duration,
+      final TimeUnit unit) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(key, "key");
@@ -1342,7 +1415,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if success <code>false</code> otherwise
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean remove(String key) {
+  public boolean remove(final String key) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(key, "key");
@@ -1365,7 +1438,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if success <code>false</code> otherwise
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean remove(String key, boolean removeAllSubkeys) {
+  public boolean remove(final String key, final boolean removeAllSubkeys) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(key, "key");
@@ -1398,7 +1471,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if success <code>false</code> otherwise
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean remove(String key, String subkey) {
+  public boolean remove(final String key, final String subkey) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(key, "key");
@@ -1422,7 +1495,7 @@ public class K2hash implements Closeable {
    * @return <code>true</code> if success <code>false</code> otherwise
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean rename(String key, String newkey) {
+  public boolean rename(final String key, final String newkey) {
     assert (this.handle > K2H_INVALID_HANDLE);
     try {
       isStringNotEmpty(key, "key");
@@ -1439,7 +1512,7 @@ public class K2hash implements Closeable {
    *
    * @param level level of details of dump table information
    */
-  public void printTableStats(STATS_DUMP_LEVEL level) {
+  public void printTableStats(final STATS_DUMP_LEVEL level) {
     assert (this.handle > K2H_INVALID_HANDLE);
     // TODO put stats to the logger file pointer.
     switch (level) {
@@ -1463,6 +1536,8 @@ public class K2hash implements Closeable {
         // call the k2h_dump_full
         INSTANCE.k2h_dump_full(this.handle, null);
         break;
+      default:
+        break;
     }
   }
 
@@ -1478,3 +1553,12 @@ public class K2hash implements Closeable {
     INSTANCE.k2h_print_version(null);
   }
 }
+//
+// Local variables:
+// tab-width: 2
+// c-basic-offset: 2
+// indent-tabs-mode: nil
+// End:
+// vim600: noexpandtab sw=2 ts=2 fdm=marker
+// vim<600: noexpandtab sw=2 ts=2
+//

@@ -36,9 +36,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +66,9 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue Constructor */
+  @Test
   public void testOfArg1() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
       K2hashKeyQueue queue = K2hashKeyQueue.of(handle);
       assertTrue(queue.getQueueHandle() > K2hashKeyQueue.K2H_INVALID_HANDLE);
@@ -77,10 +79,11 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue Constructor */
+  @Test
   public void testOfArg2() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
-      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "prefix");
+      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "testOfArg2");
       assertTrue(queue.getQueueHandle() > K2hashKeyQueue.K2H_INVALID_HANDLE);
     } catch (IOException e) {
       System.out.println("IOException " + e.getMessage());
@@ -89,10 +92,11 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue Constructor */
+  @Test
   public void testOfArg3() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
-      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "prefix");
+      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "testOfArg3");
       assertTrue(queue.getQueueHandle() > K2hashKeyQueue.K2H_INVALID_HANDLE);
     } catch (IOException e) {
       System.out.println("IOException " + e.getMessage());
@@ -101,10 +105,11 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue isEmpty */
+  @Test
   public void testEmpty() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
-      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "prefix");
+      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "testEmpty");
       // 1. assure it's empty
       boolean isEmpty = queue.isEmpty();
       assertTrue(isEmpty);
@@ -122,10 +127,11 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue count */
+  @Test
   public void testCount() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
-      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "prefix");
+      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "testCount");
       // 1. assure it's zero count
       long size = queue.count();
       assertTrue(size == 0);
@@ -143,10 +149,11 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue peek */
+  @Test
   public void testPeek() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
-      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "prefix");
+      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "testPeek");
       // 1. assure it's null
       Map<String, String> data = queue.peek();
       assertTrue(data == null); // null if queue is empty.
@@ -164,10 +171,11 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue peek */
+  @Test
   public void testPeekArg2() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
-      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "prefix");
+      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "testPeekArg2");
       // 1. assure it's null
       Map<String, String> data = queue.peek(0);
       assertTrue(data == null); // null if queue is empty.
@@ -188,10 +196,11 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue offer */
+  @Test
   public void testOfferArg1() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
-      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "prefix");
+      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "testOfferArg1");
       Map<String, String> data = new HashMap<>();
       data.put("key", "val");
       // 1. assure it's true
@@ -209,10 +218,11 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue offer */
+  @Test
   public void testOfferArg4() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
-      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "prefix", "pass", 10L);
+      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "testOfferArg4", "pass", 10L);
       Map<String, String> data = new HashMap<>();
       data.put("key", "val");
       // 1. assure it's true
@@ -230,10 +240,11 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue poll */
+  @Test
   public void testPoll() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
-      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "prefix");
+      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, true, "testPoll");
       // 1. assure it's null
       Map<String, String> val = queue.poll();
       assertTrue(val == null);
@@ -258,12 +269,17 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue poll */
+  @Test
   public void testPollArgSleep() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
       K2hashKeyQueue queue =
           K2hashKeyQueue.of(
-              handle, true, "prefix", "pass", K2hashKeyQueue.DEFAULT_EXPIRATION_DURATION + 3);
+              handle,
+              true,
+              "testPollArgSleep",
+              "pass",
+              K2hashKeyQueue.DEFAULT_EXPIRATION_DURATION + 3);
 
       // 1. assure it's null
       Map<String, String> val = queue.poll();
@@ -288,18 +304,18 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue add */
+  @Test
   public void testAddArg1() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
-      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, false, "prefix");
+      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, false, "testAddArg1");
       Map<String, String> data = new HashMap<>();
       data.put("key", "val");
       // 1. assure it's true
       boolean isSuccess = queue.add(data);
       assertTrue(isSuccess);
       // 2. assure it's not null
-      Map<String, String> data2 = null;
-      data2 = queue.poll();
+      Map<String, String> data2 = queue.poll();
       assertTrue(data2 != null);
       assertTrue(data2.containsKey("key"));
       assertTrue(data2.containsValue("val"));
@@ -310,17 +326,17 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue add */
+  @Test
   public void testAddArg4() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
-      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, false, "prefix", "pass", 10L);
+      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, false, "testAddArg4", "pass", 10L);
       Map<String, String> data = new HashMap<>();
       data.put("key", "val");
       boolean isSuccess = queue.add(data);
       assertTrue(isSuccess);
       // 2. assure it's not null
-      Map<String, String> data2 = null;
-      data2 = queue.poll();
+      Map<String, String> data2 = queue.poll();
       assertTrue(data2 != null);
       assertTrue(data2.containsKey("key"));
       assertTrue(data2.containsValue("val"));
@@ -331,10 +347,11 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue remove */
+  @Test
   public void testRemoveArg() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
-      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, false, "prefix");
+      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, false, "testRemoveArg");
       Map<String, String> data = new HashMap<>();
       data.put("key", "val");
       boolean isSuccess = queue.add(data);
@@ -351,11 +368,12 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue remove */
+  @Test
   public void testRemoveArgException() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
-      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, false, "prefix");
-      Map<String, String> data = queue.remove();
+      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, false, "testRemoveArgException");
+      queue.remove();
       System.out.println("NoSuchElementException should be thrown");
       assertTrue(false);
     } catch (IOException e) {
@@ -367,10 +385,11 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue remove */
+  @Test
   public void testRemoveArg1() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
-      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, false, "prefix");
+      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, false, "testRemoveArg1");
       Map<String, String> data = new HashMap<>();
       data.put("key", "val");
       boolean isSuccess = queue.remove(data);
@@ -382,10 +401,12 @@ public class K2hashKeyQueueTest {
   }
 
   /** K2hashKeyQueue print */
+  @Test
+  @Disabled
   public void testPrint() {
-    try (K2hash db = K2hash.of(FILEDB)) {
+    try (K2hash db = K2hash.of(K2hash.OPEN_MODE.MEM)) {
       long handle = db.getHandle();
-      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, false, "prefix");
+      K2hashKeyQueue queue = K2hashKeyQueue.of(handle, false, "testPrint");
       queue.print();
       assertTrue(true);
     } catch (IOException e) {
@@ -394,3 +415,12 @@ public class K2hashKeyQueueTest {
     }
   }
 }
+//
+// Local variables:
+// tab-width: 2
+// c-basic-offset: 2
+// indent-tabs-mode: nil
+// End:
+// vim600: noexpandtab sw=2 ts=2 fdm=marker
+// vim<600: noexpandtab sw=2 ts=2
+//

@@ -28,8 +28,12 @@
  */
 package ax.antpick.k2hash;
 
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
+import com.sun.jna.Library;
+import com.sun.jna.Pointer;
+import com.sun.jna.StringArray;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * This JNA interface provides functions defined in the K2hash C library. This class is a
@@ -53,7 +57,7 @@ import com.sun.jna.ptr.*;
  * }
  * }</pre>
  */
-interface K2hashLibrary extends Library {
+public interface K2hashLibrary extends Library {
   /**
    * Changes the logging level up. The level will go back to the "silent" level after the "debug"
    * level.
@@ -78,7 +82,7 @@ interface K2hashLibrary extends Library {
   /**
    * Redirects stderr to a log file.
    *
-   * @param filepath A filepath string
+   * @param filepath A file path string
    * @return <code>true</code> if set the debug file, <code>false</code> otherwise
    */
   boolean k2h_set_debug_file(String filepath);
@@ -137,8 +141,8 @@ interface K2hashLibrary extends Library {
    * stream.
    *
    * @param handle a k2hash data handle
-   * @param stream the file pointer to which prints elementtables
-   * @return <code>true</code> if prints elementtables, <code>false</code> otherwise
+   * @param stream the file pointer to which prints element tables
+   * @return <code>true</code> if prints element tables, <code>false</code> otherwise
    */
   boolean k2h_dump_elementtable(long handle, Pointer stream);
 
@@ -147,8 +151,8 @@ interface K2hashLibrary extends Library {
    * the stream.
    *
    * @param handle a k2hash data handle
-   * @param stream the file pointer to which prints headers, tables, elementtables and others
-   * @return <code>true</code> if prints headers, tables, elementtables and others <code>false
+   * @param stream the file pointer to which prints headers, tables, element tables and others
+   * @return <code>true</code> if prints headers, tables, element tables and others <code>false
    *     </code> otherwise
    */
   boolean k2h_dump_full(long handle, Pointer stream);
@@ -172,7 +176,7 @@ interface K2hashLibrary extends Library {
   /**
    * Initializes a k2hash file.
    *
-   * @param filepath a filepath string
+   * @param filepath a file path string
    * @param maskbitcnt a mask bit
    * @param cmaskbitcnt a cmask bit
    * @param pagesize a page size
@@ -185,7 +189,7 @@ interface K2hashLibrary extends Library {
   /**
    * Opens a k2hash file.
    *
-   * @param filepath a filepath string
+   * @param filepath a file path string
    * @param readonly the flag whether readonly
    * @param removefile the flag whether remove file after detaching the memory
    * @param fullmap the flag whether mmap whole of a file into memory
@@ -208,7 +212,7 @@ interface K2hashLibrary extends Library {
   /**
    * Opens a k2hash file with read and write mode.
    *
-   * @param filepath a filepath string
+   * @param filepath a file path string
    * @param fullmap the flag whether mmap whole of a file into memory
    * @param maskbitcnt a mask bit
    * @param cmaskbitcnt a cmask bit
@@ -227,7 +231,7 @@ interface K2hashLibrary extends Library {
   /**
    * Opens a k2hash file with read mode.
    *
-   * @param filepath a filepath string
+   * @param filepath a file path string
    * @param fullmap the flag whether mmap whole of a file into memory
    * @param maskbitcnt a mask bit
    * @param cmaskbitcnt a cmask bit
@@ -246,7 +250,7 @@ interface K2hashLibrary extends Library {
   /**
    * Opens a k2hash file with temporary file mode.
    *
-   * @param filepath a filepath string
+   * @param filepath a file path string
    * @param fullmap the flag whether mmap whole of a file into memory
    * @param maskbitcnt a mask bit
    * @param cmaskbitcnt a cmask bit
@@ -300,7 +304,7 @@ interface K2hashLibrary extends Library {
    * @param prefixlen the length of a prefix string of a transaction log entry
    * @param pparam a parameter passes to transaction log parser program
    * @param paramlen the length of parameter passes to transaction log parser program
-   * @param expirationDuration the duration to expire a log
+   * @param pExpirationDuration the duration to expire a log
    * @return <code>true</code> if success <code>false</code> otherwise
    */
   boolean k2h_transaction_param_we(
@@ -311,7 +315,7 @@ interface K2hashLibrary extends Library {
       int prefixlen,
       String pparam,
       int paramlen,
-      LongByReference expirationDuration);
+      Pointer pExpirationDuration);
 
   /**
    * Gets the number of workers for transactions.
@@ -347,7 +351,7 @@ interface K2hashLibrary extends Library {
    * Loads data from serialized data in a file.
    *
    * @param handle a k2hash data handle
-   * @param filepath a filepath string
+   * @param filepath a file path string
    * @param errskip <code>true</code> if skip errors while loading a file
    * @return <code>true</code> if success <code>false</code> otherwise
    */
@@ -357,7 +361,7 @@ interface K2hashLibrary extends Library {
    * Saves serialized data to an file.
    *
    * @param handle a k2hash data handle
-   * @param filepath a filepath string
+   * @param filepath a file path string
    * @param errskip <code>true</code> if skip errors while writing data to a file
    * @return <code>true</code> if success <code>false</code> otherwise
    */
@@ -369,7 +373,7 @@ interface K2hashLibrary extends Library {
    * @param handle a k2hash data handle
    * @param is_mtime the flag whether the library records when files are created and modified
    * @param is_defenc the flag whether the library encrypts data
-   * @param passfile a password filepath string
+   * @param passfile a password file path string
    * @param is_history the flag whether the library save its history
    * @param expirationDuration the duration data expires
    * @return <code>true</code> if success <code>false</code> otherwise
@@ -386,7 +390,7 @@ interface K2hashLibrary extends Library {
    * Enables attributes by using shared library.
    *
    * @param handle a k2hash data handle
-   * @param libpath a shared library filepath string
+   * @param libpath a shared library file path string
    * @return <code>true</code> if success <code>false</code> otherwise
    */
   boolean k2h_add_attr_plugin_library(long handle, String libpath);
@@ -446,10 +450,10 @@ interface K2hashLibrary extends Library {
    * @param handle a k2hash data handle
    * @param pkey a key string
    * @param pass a passphrase string
-   * @return a value string
+   * @return the pointer to the value string
    */
   // extern char* k2h_get_str_direct_value_wp(k2h_h handle, const char* pkey, const char* pass);
-  String k2h_get_str_direct_value_wp(long handle, String pkey, String pass);
+  Pointer k2h_get_str_direct_value_wp(long handle, String pkey, String pass);
 
   /**
    * Sets the value of a key in binary format.
@@ -494,7 +498,7 @@ interface K2hashLibrary extends Library {
    *
    * @param handle a k2hash data handle
    * @param pkey a key string
-   * @return an arraylist of a subkey
+   * @return an array list of a subkey
    */
   // extern char** k2h_get_str_direct_subkeys(k2h_h handle, const char* pkey);
   PointerByReference k2h_get_str_direct_subkeys(long handle, String pkey); // TODO text format
@@ -535,7 +539,7 @@ interface K2hashLibrary extends Library {
    * @return <code>true</code> if success <code>false</code> otherwise
    */
   // extern bool k2h_free_keyarray(char** pkeys);
-  boolean k2h_free_keyarray(String[] pkeys);
+  boolean k2h_free_keyarray(PointerByReference pkeys);
 
   /**
    * Sets the subkeys of a key in binary format.
@@ -633,7 +637,7 @@ interface K2hashLibrary extends Library {
    * @param pkey a key byte array
    * @param keylength the number of a key
    * @param ppattrspck a pointer to an array of a pointer of an attribute pack structure
-   * @param pattrspckcnt the number of attribure structures
+   * @param pattrspckcnt the number of attribute structures
    * @return <code>true</code> if success <code>false</code> otherwise
    */
   // extern bool k2h_get_attrs(k2h_h handle, const unsigned char* pkey, size_t keylength,
@@ -656,7 +660,7 @@ interface K2hashLibrary extends Library {
    */
   // extern PK2HATTRPCK k2h_get_direct_attrs(k2h_h handle, const unsigned char* pkey, size_t
   // keylength, int* pattrspckcnt);
-  K2hashAttrPack k2h_get_direct_attrs(
+  PointerByReference k2h_get_direct_attrs(
       long handle, byte[] pkey, long keylength, IntByReference pattrspckcnt);
 
   /**
@@ -664,7 +668,7 @@ interface K2hashLibrary extends Library {
    *
    * @param handle a k2hash data handle
    * @param pkey a key string
-   * @param pattrspckcnt the number of attribure structures
+   * @param pattrspckcnt the number of attribute structures
    * @return a pointer to an array of a pointer of an attribute pack structure
    */
   // extern PK2HATTRPCK k2h_get_str_direct_attrs(k2h_h handle, const char* pkey, int* pattrspckcnt);
@@ -674,11 +678,11 @@ interface K2hashLibrary extends Library {
    * Releases the memory area pointed by the K2HATTRPCK object.
    *
    * @param pattrs an array of a pointer of an attribute pack structure
-   * @param attrcnt the number of attribure structures
+   * @param attrcnt the number of attribute structures
    * @return <code>true</code> if success <code>false</code> otherwise
    */
   // extern bool k2h_free_attrpack(PK2HATTRPCK pattrs, int attrcnt);
-  boolean k2h_free_attrpack(K2hashAttrPack[] pattrs, int attrcnt);
+  boolean k2h_free_attrpack(K2hashAttrPack pattrs, int attrcnt);
 
   /**
    * Removes the key and all the subkeys of the key.
@@ -864,8 +868,8 @@ interface K2hashLibrary extends Library {
    * Adds an item to the tail of the queue.
    *
    * @param qhandle a queue handle
-   * @param bydata a queueing string
-   * @param datalen the length of a queueing string
+   * @param bydata a queue string
+   * @param datalen the length of a queue string
    * @return <code>true</code> if success <code>false</code> otherwise
    */
   // extern bool k2h_q_push(k2h_q_h qhandle, const unsigned char* bydata, size_t datalen);
@@ -896,10 +900,10 @@ interface K2hashLibrary extends Library {
    * Adds an item to the tail of the queue.
    *
    * @param qhandle a queue handle
-   * @param bydata a queueing string
-   * @param datalen the length of a queueing string
+   * @param bydata a queue string
+   * @param datalen the length of a queue string
    * @param attrspck a pointer to an array of a pointer of an attribute pack structure
-   * @param attrspckcnt the number of attribure structures
+   * @param attrspckcnt the number of attribute structures
    * @param encpass a passphrase string
    * @param expirationDuration a duration in seconds to expire the data
    * @return <code>true</code> if success <code>false</code> otherwise
@@ -919,10 +923,10 @@ interface K2hashLibrary extends Library {
    * Retrives an item from the front of the queue.
    *
    * @param qhandle a queue handle
-   * @param ppdata a pointer to a queueing string
-   * @param pdatalen the length of a pointer of a queueing string
+   * @param ppdata a pointer to a queue string
+   * @param pdatalen the length of a pointer of a queue string
    * @param ppattrspck a pointer to an array of a pointer of an attribute pack structure
-   * @param pattrspckcnt the number of attribure structures
+   * @param pattrspckcnt the number of attribute structures
    * @param encpass a passphrase string
    * @return <code>true</code> if success <code>false</code> otherwise
    */
@@ -940,8 +944,8 @@ interface K2hashLibrary extends Library {
    * Retrieves an item from the front of the queue and removes it.
    *
    * @param qhandle a queue handle
-   * @param ppdata a pointer to a queueing string
-   * @param pdatalen the length of a pointer of a queueing string
+   * @param ppdata a pointer to a queue string
+   * @param pdatalen the length of a pointer of a queue string
    * @param encpass a passphrase string
    * @return <code>true</code> if success <code>false</code> otherwise
    */
@@ -951,7 +955,7 @@ interface K2hashLibrary extends Library {
       long qhandle, PointerByReference ppdata, IntByReference pdatalen, String encpass);
 
   /**
-   * Removes data in a queue
+   * Removes data in a queue.
    *
    * @param qhandle a queue handle
    * @param count the number of data to be removed
@@ -962,7 +966,7 @@ interface K2hashLibrary extends Library {
   boolean k2h_q_remove_wp(long qhandle, int count, String encpass);
 
   /**
-   * Prints data in a queue
+   * Prints data in a queue.
    *
    * @param qhandle a queue handle
    * @param stream the file pointer to which prints
@@ -1035,11 +1039,11 @@ interface K2hashLibrary extends Library {
   int k2h_keyq_count(long keyqhandle);
 
   /**
-   * Retrives an item from the key queue.
+   * Retrieves an item from the key queue.
    *
    * @param keyqhandle a key queue handle
-   * @param ppdata a pointer to a queueing string
-   * @param pdatalen the length of a pointer of a queueing string
+   * @param ppdata a pointer to a queue string
+   * @param pdatalen the length of a pointer of a queue string
    * @param pos starting position to read in this queue
    * @return <code>true</code> if success <code>false</code> otherwise
    */
@@ -1049,7 +1053,7 @@ interface K2hashLibrary extends Library {
       long keyqhandle, PointerByReference ppdata, IntByReference pdatalen, int pos);
 
   /**
-   * Retrives an item from the key queue.
+   * Retrieves an item from the key queue.
    *
    * @param keyqhandle a key queue handle
    * @param ppkey a key string
@@ -1095,7 +1099,7 @@ interface K2hashLibrary extends Library {
   boolean k2h_keyq_push_keyval(long keyqhandle, String bykey, int keylen, String byval, int vallen);
 
   /**
-   * Retrives an item from the front of the key queue.
+   * Retrieves an item from the front of the key queue.
    *
    * @param keyqhandle a key queue handle
    * @param ppval a pointer to a value string
@@ -1106,7 +1110,7 @@ interface K2hashLibrary extends Library {
   boolean k2h_keyq_pop(long keyqhandle, PointerByReference ppval, IntByReference pvallen);
 
   /**
-   * Retrives an item from the front of the key queue.
+   * Retrieves an item from the front of the key queue.
    *
    * @param keyqhandle a key queue handle
    * @param ppkey a key string
@@ -1124,7 +1128,7 @@ interface K2hashLibrary extends Library {
       IntByReference pvallen);
 
   /**
-   * Retrives an item from the front of the key queue.
+   * Retrieves an item from the front of the key queue.
    *
    * @param keyqhandle a key queue handle
    * @param ppkey a key string
@@ -1158,8 +1162,8 @@ interface K2hashLibrary extends Library {
    * Retrieves an item from the key queue. The item will not be removed from the key queue.
    *
    * @param keyqhandle a key queue handle
-   * @param ppdata a pointer to a queueing string
-   * @param pdatalen the length of a pointer of a queueing string
+   * @param ppdata a pointer to a queue string
+   * @param pdatalen the length of a pointer of a queue string
    * @param pos starting position to read in this queue
    * @param encpass a passphrase string
    * @return <code>true</code> if success <code>false</code> otherwise
@@ -1193,7 +1197,7 @@ interface K2hashLibrary extends Library {
       String encpass);
 
   /**
-   * Adds a key to the tail of the queue
+   * Adds a key to the tail of the queue.
    *
    * @param keyqhandle a key queue handle
    * @param bykey a key string
@@ -1212,7 +1216,7 @@ interface K2hashLibrary extends Library {
       LongByReference expirationDuration);
 
   /**
-   * Adds a key and a value to the tail of the queue
+   * Adds a key and a value to the tail of the queue.
    *
    * @param keyqhandle a key queue handle
    * @param bykey a key string
@@ -1235,11 +1239,11 @@ interface K2hashLibrary extends Library {
       LongByReference expirationDuration);
 
   /**
-   * Retrieve and removes an value from the front of the queue
+   * Retrieve and removes an value from the front of the queue.
    *
    * @param keyqhandle a key queue handle
    * @param ppval a pointer to a key string
-   * @param pvallen the number of a keye string
+   * @param pvallen the number of a key string
    * @param encpass a passphrase string
    * @return <code>true</code> if success <code>false</code> otherwise
    */
@@ -1270,7 +1274,7 @@ interface K2hashLibrary extends Library {
       String encpass);
 
   /**
-   * Removes data in a key queue
+   * Removes data in a key queue.
    *
    * @param keyqhandle a key queue handle
    * @param count the number of data to be removed
@@ -1281,7 +1285,7 @@ interface K2hashLibrary extends Library {
   boolean k2h_keyq_remove_wp(long keyqhandle, int count, String encpass);
 
   /**
-   * Prints data in a key queue
+   * Prints data in a key queue.
    *
    * @param keyqhandle a key queue handle
    * @param stream the file pointer to which prints
@@ -1290,3 +1294,12 @@ interface K2hashLibrary extends Library {
   // extern bool k2h_keyq_dump(k2h_keyq_h keyqhandle, FILE* stream);
   boolean k2h_keyq_dump(long keyqhandle, Pointer stream);
 }
+//
+// Local variables:
+// tab-width: 2
+// c-basic-offset: 2
+// indent-tabs-mode: nil
+// End:
+// vim600: noexpandtab sw=2 ts=2 fdm=marker
+// vim<600: noexpandtab sw=2 ts=2
+//
