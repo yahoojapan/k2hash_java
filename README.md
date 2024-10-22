@@ -61,3 +61,7 @@ MIT License. See the LICENSE file.
 [AntPickax](https://antpick.ax/) is
   - an open source team in [Yahoo Japan Corporation](https://about.yahoo.co.jp/info/en/company/).
   - a product family of open source software developed by [AntPickax](https://antpick.ax/).
+
+## Copyright
+
+Copyright(C) 2023 Yahoo Japan Corporation.

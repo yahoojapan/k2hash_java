@@ -28,8 +28,10 @@
  */
 package ax.antpick.k2hash;
 
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.ptr.PointerByReference;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -41,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Queue holds elements in a FIFO (first-in-first-out) manner. Order of elements is configurable by
- * passing a boolean variable to the 2nd parameter of constructors. Passing a true variable
+ * passing a Boolean variable to the 2nd parameter of constructors. Passing a true variable
  * constructs a Queue instance, Otherwise a Stack instance is created.
  *
  * <p>The difference of KeyQueue and Queue: KeyQueue stores references to keys in k2hash database
@@ -92,7 +94,7 @@ import org.slf4j.LoggerFactory;
  *
  * }</pre>
  */
-public class K2hashQueue implements Closeable {
+public final class K2hashQueue implements Closeable {
 
   /** A logger instance. */
   private static final Logger logger = LoggerFactory.getLogger(K2hashQueue.class);
@@ -118,17 +120,17 @@ public class K2hashQueue implements Closeable {
   public static final int DEFAULT_ATTRPACK_SIZE = 0;
 
   /* --  Members -- */
-  /** a K2hash data handle */
+  /** a K2hash data handle. */
   private long handle = K2H_INVALID_HANDLE;
-  /** FIFO(Queue) or LIFO(Stack) */
+  /** FIFO(Queue) or LIFO(Stack). */
   private boolean fifo = true;
-  /** a prefix string of this queue */
+  /** a prefix string of this queue. */
   private String prefix = "";
-  /** a K2hashQueue data handle */
+  /** a K2hashQueue data handle. */
   private long queueHandle = K2H_INVALID_HANDLE;
-  /** a password string */
+  /** a password string. */
   private String pass;
-  /** data expiration duration */
+  /** data expiration duration. */
   private long expirationDuration;
 
   /* -- debug methods -- */
@@ -161,7 +163,7 @@ public class K2hashQueue implements Closeable {
    * @return a K2hashQueue instance
    * @throws IOException if a K2hash data handle is invalid
    */
-  public static K2hashQueue of(long handle) throws IOException {
+  public static K2hashQueue of(final long handle) throws IOException {
     if (handle <= K2H_INVALID_HANDLE) {
       throw new IOException("K2hashQueue.open failed");
     }
@@ -178,7 +180,8 @@ public class K2hashQueue implements Closeable {
    * @return a K2hashQueue instance
    * @throws IOException if a K2hash data handle is invalid
    */
-  public static K2hashQueue of(long handle, boolean fifo, String prefix) throws IOException {
+  public static K2hashQueue of(final long handle, final boolean fifo, final String prefix)
+      throws IOException {
     if (handle <= K2H_INVALID_HANDLE) {
       throw new IOException("K2H_INVALID_HANDLE");
     }
@@ -198,7 +201,11 @@ public class K2hashQueue implements Closeable {
    * @throws IllegalArgumentException if an illegal augment exists
    */
   public static K2hashQueue of(
-      long handle, boolean fifo, String prefix, String pass, long expirationDuration)
+      final long handle,
+      final boolean fifo,
+      final String prefix,
+      final String pass,
+      final long expirationDuration)
       throws IOException {
     if (handle <= K2H_INVALID_HANDLE) {
       throw new IOException("K2H_INVALID_HANDLE");
@@ -218,20 +225,24 @@ public class K2hashQueue implements Closeable {
    * @throws IOException if a K2hash handle is invalid
    */
   private K2hashQueue(
-      long handle, boolean fifo, String prefix, String pass, long expirationDuration)
+      final long paramHandle,
+      final boolean paramFifo,
+      final String paramPrefix,
+      final String paramPass,
+      final long paramExpirationDuration)
       throws IOException {
-    if (handle <= K2H_INVALID_HANDLE) {
+    if (paramHandle <= K2H_INVALID_HANDLE) {
       throw new IOException("handle is K2H_INVALID_HANDLE");
     }
-    if (expirationDuration < 0) {
+    if (paramExpirationDuration < 0) {
       throw new IllegalArgumentException("expirationDuration is greater than equal zero");
     }
 
-    this.handle = handle;
-    this.prefix = prefix;
-    this.fifo = fifo;
-    this.pass = pass;
-    this.expirationDuration = expirationDuration;
+    this.handle = paramHandle;
+    this.prefix = paramPrefix;
+    this.fifo = paramFifo;
+    this.pass = paramPass;
+    this.expirationDuration = paramExpirationDuration;
 
     // gets the library address
     if (INSTANCE == null) {
@@ -248,7 +259,7 @@ public class K2hashQueue implements Closeable {
   }
 
   /* -- Instance methods -- */
-  /** Free KeyQueueHandle */
+  /** Free KeyQueueHandle. */
   @Override
   public void close() throws IOException {
     assert (this.queueHandle > K2H_INVALID_HANDLE);
@@ -316,7 +327,7 @@ public class K2hashQueue implements Closeable {
    * @return an object at the position of this queue
    * @throws IllegalArgumentException if the position is less than zero
    */
-  public String peek(int position) {
+  public String peek(final int position) {
     assert (this.handle > K2H_INVALID_HANDLE && this.queueHandle > K2H_INVALID_HANDLE);
 
     if (position < 0) {
@@ -329,7 +340,7 @@ public class K2hashQueue implements Closeable {
     boolean isSuccess =
         INSTANCE.k2h_q_read_wp(this.queueHandle, ppdata, pdatalen, position, this.pass);
 
-    if (ppdata != null && pdatalen != null && pdatalen.getValue() != 0) {
+    if (pdatalen.getValue() != 0) {
       Pointer p = ppdata.getValue();
       byte[] buffer = p.getByteArray(0, pdatalen.getValue());
       String data = new String(buffer);
@@ -348,7 +359,7 @@ public class K2hashQueue implements Closeable {
    * @return <code>true</code> if success <code>false</code> otherwise
    * @throws IllegalArgumentException - if arguments are illegal.
    */
-  public boolean offer(Object obj) {
+  public boolean offer(final Object obj) {
     assert (this.handle > K2H_INVALID_HANDLE && this.queueHandle > K2H_INVALID_HANDLE);
     if (obj == null) {
       throw new IllegalArgumentException("obj is null. shouldn't be null.");
@@ -408,7 +419,7 @@ public class K2hashQueue implements Closeable {
     IntByReference pdatalen = new IntByReference();
     boolean isSuccess =
         INSTANCE.k2h_q_pop_wa(this.queueHandle, ppdata, pdatalen, null, null, this.pass);
-    if (ppdata != null && pdatalen != null && pdatalen.getValue() != 0) {
+    if (pdatalen.getValue() != 0) {
       Pointer p = ppdata.getValue();
       if (p != null) {
         byte[] buffer = p.getByteArray(0, pdatalen.getValue());
@@ -430,7 +441,7 @@ public class K2hashQueue implements Closeable {
    * @return <code>true</code> if success <code>false</code> otherwise
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public boolean add(Object obj) {
+  public boolean add(final Object obj) {
     if (obj == null) {
       throw new IllegalArgumentException("obj is null. shouldn't be null.");
     }
@@ -461,7 +472,7 @@ public class K2hashQueue implements Closeable {
     PointerByReference ppdata = new PointerByReference();
     IntByReference pdatalen = new IntByReference();
     boolean isSuccess = INSTANCE.k2h_q_pop_wp(this.queueHandle, ppdata, pdatalen, this.pass);
-    if (ppdata != null && pdatalen != null && pdatalen.getValue() != 0) {
+    if (pdatalen.getValue() != 0) {
       Pointer p = ppdata.getValue();
       if (p != null) {
         byte[] buffer = p.getByteArray(0, pdatalen.getValue());
@@ -482,7 +493,7 @@ public class K2hashQueue implements Closeable {
    * @throws NoSuchElementException - if this queue is empty
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public List<String> removeList(long count) {
+  public List<String> removeList(final long count) {
     assert (this.handle > K2H_INVALID_HANDLE && this.queueHandle > K2H_INVALID_HANDLE);
     if (count < 0) {
       throw new IllegalArgumentException("count is negative. should be positive");
@@ -529,7 +540,7 @@ public class K2hashQueue implements Closeable {
    * @throws NoSuchElementException - if this queue is empty
    * @throws IllegalArgumentException if an illegal augment exists
    */
-  public String element(int position) {
+  public String element(final int position) {
     assert (this.handle > K2H_INVALID_HANDLE && this.queueHandle > K2H_INVALID_HANDLE);
     if (position < 0) {
       throw new IllegalArgumentException("position is negative. should be positive");
@@ -563,3 +574,12 @@ public class K2hashQueue implements Closeable {
     INSTANCE.k2h_q_dump(this.queueHandle, null);
   }
 }
+//
+// Local variables:
+// tab-width: 2
+// c-basic-offset: 2
+// indent-tabs-mode: nil
+// End:
+// vim600: noexpandtab sw=2 ts=2 fdm=marker
+// vim<600: noexpandtab sw=2 ts=2
+//
