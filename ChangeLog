@@ -1,6 +1,6 @@
 k2hash-java (1.0.6) stable; urgency=low
 
-  *  Bump up
+  * Updated the SonaType configurations
 
  -- Hirotaka Wakabayashi <hiwakaba@yahoo-corp.jp>  Thu, 30 Nov 2023 13:57:40 +0900
 

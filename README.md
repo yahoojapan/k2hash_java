@@ -1,6 +1,6 @@
 k2hash_java
 ------
-[![Actions Status](https://github.com/yahoojapan/k2hash_java/workflows/CI/badge.svg)](https://github.com/yahoojapan/k2hash_java/actions)
+[![Actions Status](https://github.com/yahoojapan/k2hash_java/actions/workflows/main.yml/badge.svg)](https://github.com/yahoojapan/k2hash_java/actions)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/yahoojapan/k2hash_nodejs/master/LICENSE)
 
 ### Overview
