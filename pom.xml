@@ -169,7 +169,7 @@
               <goals>
                 <goal>site</goal>
               </goals>
-              <phase>sitey</phase>
+              <phase>site</phase>
             </execution>
           </executions>
         </plugin>
