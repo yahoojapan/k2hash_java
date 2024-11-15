@@ -131,7 +131,6 @@
                     <arg>--pinentry-mode</arg>
                     <arg>loopback</arg>
                   </gpgArguments>
-                  <keyname>hiwkby@yahoo.com</keyname>
                 </configuration>
               </execution>
             </executions>
