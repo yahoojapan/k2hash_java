@@ -1,3 +1,10 @@
+k2hash-java (1.0.7) stable; urgency=low
+
+  * Maven Central Repository migration
+  * Update document
+
+ -- Hirotaka Wakabayashi <hiwakaba@yahoo-corp.jp>  Thu, 30 Nov 2023 13:57:40 +0900
+
 k2hash-java (1.0.6) stable; urgency=low
 
   * Updated the SonaType configurations

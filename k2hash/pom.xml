@@ -7,12 +7,12 @@
   <parent>
   	<groupId>ax.antpick</groupId>
   	<artifactId>k2hash-parent</artifactId>
-  	<version>1.0.6</version>
+  	<version>1.0.7</version>
   </parent>
 
   <artifactId>k2hash</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.6</version>
+  <version>1.0.7</version>
 
   <name>k2hash library</name>
   <description>An official java driver for k2hash, which is a highly available and scalable distributed KVS library.</description>
