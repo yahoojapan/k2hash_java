@@ -5,7 +5,7 @@
   <packaging>pom</packaging>
   <artifactId>k2hash-parent</artifactId>
   <name>k2hash</name>
-  <version>1.0.7</version>
+  <version>1.0.8</version>
   <description>An official java driver for k2hash, which is a highly available and scalable distributed KVS library.</description>
   <url>https://github.com/yahoojapan/k2hash_java</url>
 

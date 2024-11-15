@@ -1,3 +1,10 @@
+k2hash-java (1.0.8) stable; urgency=low
+
+  * Fixes pom.xml
+  * Fixes main.yml
+
+ -- Hirotaka Wakabayashi <hiwakaba@yahoo-corp.jp>  Fri, 15 Nov 2024 18:16:43 +0900
+
 k2hash-java (1.0.7) stable; urgency=low
 
   * Maven Central Repository migration
