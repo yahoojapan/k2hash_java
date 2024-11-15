@@ -42,14 +42,6 @@
     <url>https://github.com/yahoojapan/k2hash_java</url>
   </scm>
 
-  <distributionManagement>
-    <repository>
-      <id>ossrh</id>
-      <name>Central Repository OSSRH</name>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
-
   <reporting>
     <plugins>
       <plugin>
@@ -99,6 +91,7 @@
     <checkstyle.configLocation>checkstyle.xml</checkstyle.configLocation>
     <nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
     <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
+    <central-publishing-maven-plugin.version>0.6.0</central-publishing-maven-plugin.version>
   </properties>
 
   <dependencies>
@@ -229,17 +222,15 @@
               </execution>
             </executions>
           </plugin>
-
           <plugin>
-             <groupId>org.sonatype.plugins</groupId>
-             <artifactId>nexus-staging-maven-plugin</artifactId>
-             <version>${nexus-staging-maven-plugin.version}</version>
-             <extensions>true</extensions>
-             <configuration>
-                <serverId>ossrh</serverId>
-                <nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
-                <autoReleaseAfterClose>true</autoReleaseAfterClose>
-             </configuration>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>${central-publishing-maven-plugin.version}</version>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central</publishingServerId>
+              <autoPublish>true</autoPublish>
+            </configuration>
           </plugin>
           <plugin>
              <groupId>org.apache.maven.plugins</groupId>

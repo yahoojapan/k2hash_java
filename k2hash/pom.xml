@@ -24,14 +24,6 @@
     <url>https://github.com/yahoojapan/k2hash_java</url>
   </scm>
 
-  <distributionManagement>
-    <repository>
-      <id>ossrh</id>
-      <name>Central Repository OSSRH</name>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
-
   <reporting>
     <plugins>
       <plugin>
