@@ -33,14 +33,7 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: ${{ matrix.java }}
-    - name: Configure GPG Key
-      run: |
-          export GPG_TTY=$(tty)
-          echo -n "$GPG_SIGNING_KEY" | gpg --import --batch
-      env:
-          GPG_SIGNING_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-    - name: List of keys on gpg
-      run: gpg --list-secret-keys --keyid-format LONG
+
     - name: Set environments
       run: |
         echo "COMMON_MAVEN_OPTS=-Dmaven.compiler.failOnWarning=true -Dmaven.compiler.showDeprecation=true -Dmaven.compiler.verbose=true -Dmaven.compiler.debuglevel=lines,vars,source" >> "$GITHUB_ENV"
