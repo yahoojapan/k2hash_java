@@ -7,7 +7,7 @@
   <parent>
   	<groupId>ax.antpick</groupId>
   	<artifactId>k2hash-parent</artifactId>
-  	<version>1.0.7</version>
+  	<version>1.0.8</version>
   </parent>
 
   <artifactId>k2hash</artifactId>
@@ -48,7 +48,6 @@
         <!--Note - the version would be inherited-->
         <configuration>
           <configLocation>${project.parent.basedir}/${checkstyle.configLocation}</configLocation>
-          <suppressionsFile>${project.parent.basedir}/${checkstyle.suppressionsLocation}</suppressionsFile>
         </configuration>
       </plugin>
     </plugins>
