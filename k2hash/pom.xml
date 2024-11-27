@@ -47,7 +47,7 @@
 	<version>${maven-checkstyle-plugin.version}</version>
         <!--Note - the version would be inherited-->
         <configuration>
-          <configLocation>${project.parent.basedir}/${checkstyle.configLocation}</configLocation>
+          <configLocation>${checkstyle.configLocation}</configLocation>
         </configuration>
       </plugin>
     </plugins>
