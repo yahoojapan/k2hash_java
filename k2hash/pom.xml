@@ -12,7 +12,7 @@
 
   <artifactId>k2hash</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.8</version>
+  <version>1.0.16</version>
 
   <name>k2hash library</name>
   <description>An official java driver for k2hash, which is a highly available and scalable distributed KVS library.</description>
@@ -47,7 +47,7 @@
 	<version>${maven-checkstyle-plugin.version}</version>
         <!--Note - the version would be inherited-->
         <configuration>
-          <configLocation>${project.parent.basedir}/${checkstyle.configLocation}</configLocation>
+          <configLocation>${checkstyle.configLocation}</configLocation>
         </configuration>
       </plugin>
     </plugins>
